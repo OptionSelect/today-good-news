@@ -5,6 +5,7 @@ class PostsController < ApplicationController
   before_action :set_post, only: %i[ show edit update destroy ]
 
   def get_posts
+    Post.delete_all
     tm = TextMood.new(language: "en")
     minimum_score = 0.05
     subreddits = ["UpliftingNews", "GoodNews", "UpliftingTrends"]
@@ -23,7 +24,10 @@ class PostsController < ApplicationController
           title = post["data"]["title"]
           url = post["data"]["url"]
           puts "#{title} - #{url} - Score:#{sentiment_score}"
-          Post.create!(title: title, url: url, sentiment_score: sentiment_score)
+
+          if Post.where(:url => url).blank?
+            Post.create!(title: title, url: url, sentiment_score: sentiment_score)
+          end
         end      
       end
     end
